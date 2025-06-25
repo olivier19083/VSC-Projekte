@@ -1,0 +1,131 @@
+// Einführung in JavaScript für Neulinge
+
+// 1. Ähnlichkeiten von JS und Java (Syntax-Beispiele)
+
+// Syntax von Schleifen (For-Schleife als Beispiel)
+console.log("--- 1. Ähnlichkeiten (Syntax) ---");
+for (let i = 0; i < 3; i++) {
+  console.log("Schleife Iteration: " + i);
+}
+
+// Syntax von Verzweigungen (If-Else als Beispiel)
+let zahl = 10;
+if (zahl > 5) {
+  console.log("Zahl ist größer als 5");
+} else {
+  console.log("Zahl ist 5 oder kleiner");
+}
+
+// Parameter in ()-Klammern bei Funktionen
+function zeigeNachricht(name) {
+  console.log("Hallo, " + name + "!");
+}
+zeigeNachricht("Welt");
+
+// Codeblöcke in {}-Klammern
+// (Schon in den Beispielen oben bei Schleifen und Verzweigungen gezeigt)
+let istAktiv = true;
+if (istAktiv) {
+  // Dieser Codeblock wird ausgeführt, wenn istAktiv true ist
+  console.log("Ist aktiv.");
+}
+
+// Array-Indexe in []-Klammern
+let farben = ["rot", "grün", "blau"];
+console.log("Erste Farbe: " + farben[0]);
+console.log("Zweite Farbe: " + farben[1]);
+
+console.log("\n"); // Neue Zeile für bessere Lesbarkeit
+
+// 2. Unterschiede von JS und Java
+
+console.log("--- 2. Unterschiede ---");
+
+// Variablen werden ohne Datentyp deklariert mit var oder let (empfohlen)
+let alter = 25; // Kein expliziter Datentyp wie int oder String
+let name = "Anna";
+
+console.log("Alter: " + alter + ", Name: " + name);
+
+// JS wird bei jedem Durchlauf interpretiert, Java wird einmal kompiliert
+// (Dies ist ein konzeptioneller Unterschied, der im Code nicht direkt gezeigt wird,
+// aber wichtig zu wissen ist: JavaScript-Code wird Zeile für Zeile vom Browser gelesen und ausgeführt)
+
+// Semikolon kann, muss aber nicht (aber Standard Style empfiehlt oft keine Semikolons am Ende von Zeilen, wo sie optional sind)
+let nachname = "Müller"; // Semikolon weggelassen (in manchen Styles erlaubt)
+let stadt = "Berlin"; // Semikolon gesetzt (auch erlaubt)
+
+console.log("Nachname: " + nachname + ", Stadt: " + stadt);
+
+console.log("\n");
+
+// 3. Funktionen ohne Rückgabe-Typ erstellen im <script>-Element
+// (Eine JavaScript-Funktion hat keinen expliziten Rückgabetyp wie 'void' oder 'int'.
+// Sie gibt standardmäßig 'undefined' zurück, wenn kein 'return'-Statement verwendet wird,
+// oder den Wert, der mit 'return' angegeben wird.)
+
+console.log("--- 3. Funktionen ---");
+
+function sagHallo() {
+  console.log("Hallo von einer Funktion ohne expliziten Rückgabetyp!");
+  // Kein 'return' Statement, diese Funktion gibt implizit undefined zurück
+}
+
+sagHallo();
+
+function addiere(a, b) {
+  return a + b; // Diese Funktion gibt einen Wert zurück
+}
+
+let summe = addiere(5, 3);
+console.log("Summe: " + summe);
+
+console.log("\n");
+
+// 4. Event-Objekt (Konzept)
+// Das Event-Objekt wird bei einem Ereignis (wie Klick, Tastendruck) automatisch
+// von Browser erstellt und enthält Informationen über das Ereignis.
+// Hier ein Beispiel, wie man auf einen Button-Klick reagiert und das Event-Objekt nutzen könnte:
+
+console.log("--- 4. Event-Objekt (Konzept) ---");
+
+// Stell dir vor, du hast einen Button in deinem HTML: <button id="meinButton">Klick mich</button>
+
+// So würdest du in JavaScript darauf reagieren:
+// (Dieser Code funktioniert nur in einer HTML-Datei mit einem entsprechenden Button)
+
+/*
+document.getElementById("meinButton").addEventListener("click", function(event) {
+  console.log("Button wurde geklickt!");
+  console.log("Event-Typ: " + event.type); // Zeigt den Typ des Events (hier: "click")
+  // Weitere Infos im event-Objekt, z.B. event.target (das Element, das das Event ausgelöst hat)
+});
+*/
+
+console.log(
+  "Ein Event-Objekt enthält Infos über ein Ereignis (z.B. Klick, Tastendruck)."
+);
+console.log("Es wird oft als Parameter an Event-Handler-Funktionen übergeben.");
+
+console.log("\n");
+
+// 5. Debugger (Konzept)
+// Der Debugger ist ein Werkzeug in Entwicklertools von Browsern (oder IDEs),
+// das hilft, Fehler im Code zu finden.
+// Du kannst Haltepunkte (Breakpoints) setzen, um die Ausführung des Codes anzuhalten
+// und Variablenwerte Schritt für Schritt zu überprüfen.
+
+console.log("--- 5. Debugger (Konzept) ---");
+console.log(
+  "Der Debugger hilft, Fehler im Code zu finden, indem er die Ausführung anhält."
+);
+console.log(
+  "Du kannst im Browser (Entwicklertools -> Sources/Quellen) Breakpoints setzen."
+);
+
+// Beispiel für einen potenziellen Haltepunkt (würde die Ausführung hier stoppen, wenn der Debugger offen ist)
+// debugger;
+let x = 10;
+let y = 20;
+let z = x + y;
+console.log("Ergebnis der Addition (im Debugger überprüfbar): " + z);

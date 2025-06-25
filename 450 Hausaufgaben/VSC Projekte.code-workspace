@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "M450-Starterprojekt",
+			"path": "../../GITHUB Projekte/M450-Starterprojekt"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "VSC Projekte"
+	}
+}
