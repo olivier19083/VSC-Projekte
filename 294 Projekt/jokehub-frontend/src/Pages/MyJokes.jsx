@@ -16,7 +16,7 @@ function MyJokes({ userJokes, deleteJoke }) {
           {userJokes.map((joke) => (
             <li key={joke.id}>
               <strong>{joke.setup}</strong> - {joke.punchline} ({joke.type}){" "}
-              <Link to={`/edit/${joke.id}`}>Bearbeiten</Link>{" "}
+              <Link to={`/edit-joke/${joke.id}`}>Bearbeiten</Link>{" "}
               <button onClick={() => deleteJoke(joke.id)}>Löschen</button>
             </li>
           ))}

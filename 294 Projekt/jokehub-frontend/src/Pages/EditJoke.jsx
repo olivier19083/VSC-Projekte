@@ -1,89 +1,68 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+function EditJoke({ userJokes, editJoke }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [joke, setJoke] = useState({ setup: "", punchline: "", type: "" });
+  const [error, setError] = useState("");
 
-import EditJoke from "../../Pages/EditJoke";
+  useEffect(() => {
+    const jokeToEdit = userJokes.find((j) => j.id === Number(id));
+    if (jokeToEdit) {
+      setJoke(jokeToEdit);
+    } else {
+      setError("Witz nicht gefunden.");
+    }
+  }, [id, userJokes]);
 
-describe("EditJoke", () => {
-  const existingJokes = [
-    {
-      id: 1,
-      setup: "Was macht ein Pirat am Computer?",
-      punchline: "Er drückt die Enter-Taste.",
-      type: "IT",
-    },
-  ];
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setJoke((prev) => ({ ...prev, [name]: value }));
+  };
 
-  it("zeigt bestehende Witzdaten im Formular an und aktualisiert den Witz", () => {
-    const mockEditJoke = vi.fn();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!joke.setup.trim() || !joke.punchline.trim() || !joke.type.trim()) {
+      setError("Bitte alle Felder ausfüllen");
+      return;
+    }
+    editJoke(joke.id, joke);
+    navigate("/myjokes");
+  };
 
-    render(
-      <MemoryRouter initialEntries={["/editjoke/1"]}>
-        <Routes>
-          <Route
-            path="/editjoke/:id"
-            element={
-              <EditJoke userJokes={existingJokes} editJoke={mockEditJoke} />
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    );
+  if (error) return <div style={{ color: "red" }}>{error}</div>;
 
-    // Prüfe vorhandene Werte
-    expect(
-      screen.getByDisplayValue(/Was macht ein Pirat am Computer/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByDisplayValue(/Er drückt die Enter-Taste./i)
-    ).toBeInTheDocument();
-    expect(screen.getByDisplayValue(/IT/i)).toBeInTheDocument();
+  return (
+    <div>
+      <h2>Witz bearbeiten</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="setup"
+          value={joke.setup}
+          onChange={handleChange}
+          placeholder="Setup"
+        />
+        <input
+          name="punchline"
+          value={joke.punchline}
+          onChange={handleChange}
+          placeholder="Punchline"
+        />
+        <input
+          name="type"
+          value={joke.type}
+          onChange={handleChange}
+          placeholder="Kategorie"
+        />
+        <button type="submit">Witz aktualisieren</button>
+        <button type="button" onClick={() => navigate("/myjokes")}>
+          Abbrechen
+        </button>
+      </form>
+    </div>
+  );
+}
 
-    // Ändere Setup
-    fireEvent.change(screen.getByPlaceholderText(/Setup/i), {
-      target: { value: "Was macht ein Pirat mit dem Internet?" },
-    });
-
-    // Klick auf Button "Speichern"
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
-
-    // Erwartet: editJoke mit id und geändertem Objekt
-    expect(mockEditJoke).toHaveBeenCalledWith(1, {
-      setup: "Was macht ein Pirat mit dem Internet?",
-      punchline: "Er drückt die Enter-Taste.",
-      type: "IT",
-    });
-  });
-
-  it("zeigt Warnung, wenn Felder leer sind", () => {
-    const mockEditJoke = vi.fn();
-    vi.spyOn(window, "alert").mockImplementation(() => {});
-
-    render(
-      <MemoryRouter initialEntries={["/editjoke/1"]}>
-        <Routes>
-          <Route
-            path="/editjoke/:id"
-            element={
-              <EditJoke userJokes={existingJokes} editJoke={mockEditJoke} />
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    // Leere das Setup-Feld
-    fireEvent.change(screen.getByPlaceholderText(/Setup/i), {
-      target: { value: "" },
-    });
-
-    // Klick auf Button "Speichern"
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
-
-    expect(mockEditJoke).not.toHaveBeenCalled();
-    expect(window.alert).toHaveBeenCalledWith("Bitte alle Felder ausfüllen!");
-  });
-});
+export default EditJoke;

@@ -1,16 +1,11 @@
-export default function Button({
-  onClick,
-  disabled = false,
-  className = "",
-  children,
-}) {
+import React from "react";
+
+function Button({ onClick, children, disabled }) {
   return (
-    <button
-      className={`button ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button onClick={onClick} disabled={disabled}>
       {children}
     </button>
   );
 }
+
+export default Button;

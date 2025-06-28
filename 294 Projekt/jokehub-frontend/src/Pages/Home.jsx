@@ -1,14 +1,52 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Link } from "react-router-dom";
+import axios from "axios";
 
-function Home({ jokes = [] }) {
+import Button from "../components/Button";
+import { buildApiUrl } from "../utils/api";
+
+function Home({ initialJokes = [] }) {
+  const [jokes, setJokes] = useState(initialJokes);
+  const [filteredJokes, setFilteredJokes] = useState(initialJokes);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Filtert die Witze nach Suchbegriff im Setup (case-insensitive)
-  const filteredJokes = jokes.filter((joke) =>
-    joke.setup.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Funktion zum Laden eines zufälligen Witzes von der API
+  const fetchJoke = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const url = buildApiUrl();
+      const response = await axios.get(url);
+      setJokes([response.data]); // Ein neues Array mit einem Witz
+      setFilteredJokes([response.data]);
+      setSearchTerm(""); // Suche zurücksetzen
+    } catch {
+      setError("Fehler beim Laden des Witzes. Bitte erneut versuchen.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Filtere die Witze basierend auf dem Suchbegriff
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredJokes(jokes);
+    } else {
+      const filtered = jokes.filter(
+        (j) =>
+          j.setup.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          j.punchline.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredJokes(filtered);
+    }
+  }, [searchTerm, jokes]);
+
+  // Handler für Sucheingabe
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div>
@@ -17,32 +55,32 @@ function Home({ jokes = [] }) {
         Hier kannst du lustige Witze entdecken, eigene hinzufügen und verwalten.
       </p>
 
+      <Button onClick={fetchJoke} disabled={isLoading}>
+        {isLoading ? "Lädt..." : "Witz anzeigen!"}
+      </Button>
+
       <input
         type="text"
-        placeholder="Suche"
+        placeholder="Suche Witze..."
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        aria-label="Suche"
+        onChange={handleSearchChange}
+        style={{ marginTop: "1rem", padding: "0.5rem", width: "100%" }}
       />
 
-      <ul>
-        {filteredJokes.map((joke) => (
-          <li key={joke.id}>
-            <strong>{joke.setup}</strong> – {joke.punchline} ({joke.type})
-          </li>
-        ))}
-      </ul>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <nav>
-        <ul>
-          <li>
-            <Link to="/add">Neuen Witz hinzufügen</Link>
-          </li>
-          <li>
-            <Link to="/myjokes">Meine Witze ansehen</Link>
-          </li>
-        </ul>
-      </nav>
+      {filteredJokes.length > 0 ? (
+        filteredJokes.map((joke) => (
+          <div key={joke.id} style={{ marginTop: "1rem" }}>
+            <p>
+              <strong>{joke.setup}</strong>
+            </p>
+            <p>{joke.punchline}</p>
+          </div>
+        ))
+      ) : (
+        <p>Keine Witze gefunden.</p>
+      )}
     </div>
   );
 }

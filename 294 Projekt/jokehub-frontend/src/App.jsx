@@ -15,7 +15,7 @@ import React, { useState } from "react";
 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Navigation from "./components/navigation"; // Navigation importieren
+import Navigation from "./components/Navigation";
 import AddJoke from "./Pages/AddJoke";
 import EditJoke from "./Pages/EditJoke";
 import Home from "./Pages/Home";
@@ -41,7 +41,7 @@ function App() {
 
   return (
     <Router>
-      <Navigation /> {/* Navigation hier */}
+      <Navigation />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/add" element={<AddJoke addJoke={addJoke} />} />

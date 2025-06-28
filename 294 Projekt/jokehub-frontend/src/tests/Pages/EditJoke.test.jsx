@@ -1,83 +1,104 @@
+// Testfall: Use Case 3 – Witz bearbeiten
+// Testet das Formular in EditJoke.jsx und ob editJoke() korrekt funktioniert
+
+/* eslint-env jest */
+
 import React from "react";
 
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 
 import EditJoke from "../../Pages/EditJoke";
 
-describe("EditJoke", () => {
-  const existingJoke = {
-    id: 1,
-    setup: "Was macht ein Pirat am Computer?",
-    punchline: "Er drückt die Enter-Taste.",
-    type: "IT",
-  };
+const mockNavigate = vi.fn();
 
-  it("zeigt bestehende Witzdaten im Formular an und aktualisiert den Witz", () => {
-    const mockEditJoke = vi.fn();
+let mockId = "1";
 
-    // Wir müssen den Router so aufbauen, dass der useParams id=1 hat
-    render(
-      <MemoryRouter initialEntries={["/edit/1"]}>
-        <Routes>
-          <Route
-            path="/edit/:id"
-            element={
-              <EditJoke userJokes={[existingJoke]} editJoke={mockEditJoke} />
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    );
+vi.mock("react-router-dom", () => ({
+  useNavigate: () => mockNavigate,
+  useParams: () => ({ id: mockId }),
+}));
 
-    expect(
-      screen.getByDisplayValue(/Was macht ein Pirat am Computer/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByDisplayValue(/Er drückt die Enter-Taste./i)
-    ).toBeInTheDocument();
-    expect(screen.getByDisplayValue(/IT/i)).toBeInTheDocument();
+describe("Use Case 3 – Witz bearbeiten", () => {
+  const userJokes = [
+    {
+      id: 1,
+      setup: "Alter Setup",
+      punchline: "Alte Punchline",
+      type: "Kategorie1",
+    },
+    {
+      id: 2,
+      setup: "Anderer Setup",
+      punchline: "Andere Punchline",
+      type: "Kategorie2",
+    },
+  ];
 
-    fireEvent.change(screen.getByPlaceholderText(/Setup/i), {
-      target: { value: "Was macht ein Pirat mit dem Internet?" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
+  const editJokeMock = vi.fn();
 
-    expect(mockEditJoke).toHaveBeenCalledWith(1, {
-      setup: "Was macht ein Pirat mit dem Internet?",
-      punchline: "Er drückt die Enter-Taste.",
-      type: "IT",
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockId = "1"; // Default id für jeden Test zurücksetzen
   });
 
-  it("zeigt Warnung, wenn Felder leer sind", () => {
-    const mockEditJoke = vi.fn();
-    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+  test("Formular zeigt vorhandenen Witz, ändert ihn und ruft editJoke auf", () => {
+    render(<EditJoke userJokes={userJokes} editJoke={editJokeMock} />);
 
-    render(
-      <MemoryRouter initialEntries={["/edit/1"]}>
-        <Routes>
-          <Route
-            path="/edit/:id"
-            element={
-              <EditJoke userJokes={[existingJoke]} editJoke={mockEditJoke} />
-            }
-          />
-        </Routes>
-      </MemoryRouter>
+    expect(screen.getByPlaceholderText("Setup").value).toBe("Alter Setup");
+    expect(screen.getByPlaceholderText("Punchline").value).toBe(
+      "Alte Punchline"
     );
+    expect(screen.getByPlaceholderText("Kategorie").value).toBe("Kategorie1");
 
-    fireEvent.change(screen.getByPlaceholderText(/Setup/i), {
+    fireEvent.change(screen.getByPlaceholderText("Setup"), {
+      target: { value: "Neuer Setup" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Punchline"), {
+      target: { value: "Neue Punchline" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Kategorie"), {
+      target: { value: "Neue Kategorie" },
+    });
+
+    fireEvent.click(screen.getByText("Witz aktualisieren"));
+
+    expect(editJokeMock).toHaveBeenCalledWith(1, {
+      id: 1,
+      setup: "Neuer Setup",
+      punchline: "Neue Punchline",
+      type: "Neue Kategorie",
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith("/myjokes");
+  });
+
+  test("Fehleranzeige wenn kein Witz gefunden wird", () => {
+    mockId = "3"; // Witz mit id=3 existiert nicht
+
+    render(<EditJoke userJokes={userJokes} editJoke={editJokeMock} />);
+
+    expect(screen.getByText("Witz nicht gefunden.")).toBeInTheDocument();
+  });
+
+  test("Fehlermeldung bei leeren Feldern", () => {
+    render(<EditJoke userJokes={userJokes} editJoke={editJokeMock} />);
+
+    fireEvent.change(screen.getByPlaceholderText("Setup"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Punchline"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Kategorie"), {
       target: { value: "" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
+    fireEvent.click(screen.getByText("Witz aktualisieren"));
 
-    expect(mockEditJoke).not.toHaveBeenCalled();
-    expect(window.alert).toHaveBeenCalledWith("Bitte alle Felder ausfüllen!");
-
-    alertMock.mockRestore();
+    expect(screen.getByText("Bitte alle Felder ausfüllen")).toBeInTheDocument();
+    expect(editJokeMock).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

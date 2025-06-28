@@ -3,64 +3,66 @@
 
 import React from "react";
 
-import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BrowserRouter } from "react-router-dom";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 
-import AddJoke from "../../Pages/AddJoke";
+import MyJokes from "../../Pages/MyJokes";
 
-describe("AddJoke", () => {
-  let alertMock;
+const mockJokes = [
+  { id: 1, setup: "Setup 1", punchline: "Punchline 1", type: "Kategorie1" },
+  { id: 2, setup: "Setup 2", punchline: "Punchline 2", type: "Kategorie2" },
+];
 
+const mockDelete = vi.fn();
+
+describe("Use Case 1 & 4 – Benutzerwitze anzeigen und löschen", () => {
   beforeEach(() => {
-    alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
+    mockDelete.mockClear();
   });
 
-  afterEach(() => {
-    alertMock.mockRestore();
-  });
-
-  it("fügt neuen Witz hinzu, wenn alle Felder ausgefüllt sind", () => {
-    const mockAddJoke = vi.fn();
-
+  test("zeigt alle Benutzerwitze an", () => {
     render(
-      <MemoryRouter>
-        <AddJoke addJoke={mockAddJoke} />
-      </MemoryRouter>
+      <BrowserRouter>
+        <MyJokes jokes={mockJokes} deleteJoke={mockDelete} />
+      </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText(/Setup/i), {
-      target: { value: "Test Setup" },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Punchline/i), {
-      target: { value: "Test Punchline" },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Kategorie/i), {
-      target: { value: "Test Kategorie" },
-    });
+    expect(screen.getByText("Setup 1")).toBeInTheDocument();
+    expect(screen.getByText("Punchline 1")).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content.includes("Kategorie1"))
+    ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
-
-    expect(mockAddJoke).toHaveBeenCalledWith({
-      setup: "Test Setup",
-      punchline: "Test Punchline",
-      type: "Test Kategorie",
-    });
+    expect(screen.getByText("Setup 2")).toBeInTheDocument();
+    expect(screen.getByText("Punchline 2")).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content.includes("Kategorie2"))
+    ).toBeInTheDocument();
   });
 
-  it("zeigt Warnung, wenn Felder leer sind", () => {
-    const mockAddJoke = vi.fn();
-
+  test("zeigt Hinweis, wenn keine Witze vorhanden sind", () => {
     render(
-      <MemoryRouter>
-        <AddJoke addJoke={mockAddJoke} />
-      </MemoryRouter>
+      <BrowserRouter>
+        <MyJokes jokes={[]} deleteJoke={mockDelete} />
+      </BrowserRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Speichern/i }));
+    expect(screen.getByText(/Keine Witze vorhanden/i)).toBeInTheDocument();
+  });
 
-    expect(mockAddJoke).not.toHaveBeenCalled();
-    expect(window.alert).toHaveBeenCalledWith("Bitte alle Felder ausfüllen!");
+  test("ruft deleteJoke auf, wenn Löschen-Button geklickt wird", () => {
+    render(
+      <BrowserRouter>
+        <MyJokes jokes={mockJokes} deleteJoke={mockDelete} />
+      </BrowserRouter>
+    );
+
+    const deleteButtons = screen.getAllByText("Löschen");
+    fireEvent.click(deleteButtons[0]);
+
+    expect(mockDelete).toHaveBeenCalledTimes(1);
+    expect(mockDelete).toHaveBeenCalledWith(1);
   });
 });

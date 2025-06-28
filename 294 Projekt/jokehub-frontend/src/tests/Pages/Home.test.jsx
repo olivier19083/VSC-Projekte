@@ -26,7 +26,7 @@ describe("Home", () => {
     },
     {
       id: 3,
-      setup: "Warum war der Mathebuch traurig?",
+      setup: "Warum war das Mathebuch traurig?",
       punchline: "Weil es zu viele Probleme hatte.",
       type: "Schule",
     },
@@ -35,7 +35,7 @@ describe("Home", () => {
   it("filtert die Witze basierend auf dem Suchbegriff", () => {
     render(
       <MemoryRouter>
-        <Home jokes={mockJokes} />
+        <Home initialJokes={mockJokes} />
       </MemoryRouter>
     );
 
@@ -44,7 +44,7 @@ describe("Home", () => {
 
     expect(screen.getByText(/Was macht ein Pirat/i)).toBeInTheDocument();
     expect(
-      screen.queryByText(/Warum war der Mathebuch traurig/i)
+      screen.queryByText(/Warum war das Mathebuch traurig/i)
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(/Warum können Seeräuber den Kreis/i)

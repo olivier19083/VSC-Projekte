@@ -1,4 +1,3 @@
-// src/components/navigation.jsx
 import React from "react";
 
 import { Link } from "react-router-dom";
@@ -8,15 +7,14 @@ function Navigation() {
     <nav>
       <ul>
         <li>
-          <Link to="/">Home</Link> {/* Link zur Startseite */}
+          <Link to="/">Startseite</Link>
         </li>
         <li>
-          <Link to="/add-joke">Add Joke</Link>
+          <Link to="/add">Witz hinzufügen</Link>
         </li>
         <li>
-          <Link to="/my-jokes">My Jokes</Link>
+          <Link to="/myjokes">Meine Witze</Link>
         </li>
-        {/* weitere Links, falls vorhanden */}
       </ul>
     </nav>
   );
